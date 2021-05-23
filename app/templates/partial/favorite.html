@@ -1,0 +1,33 @@
+<span>(added by {{book.uploaded_by.first_name}} {{book.uploaded_by.last_name}})</span>
+{% if book.users_who_like.all %}
+    {% if user not in book.users_who_like.all %}
+        <div>
+            {% if book.users_who_like.all.count > 1 %}
+                <p class="fst-italic mb-0"><span>Total {{book.users_who_like.all.count}} users like this</span></p>
+            {% endif %}
+            {% if book.users_who_like.all.count == 1 %}
+                <p class="fst-italic mb-0"><span>Total {{book.users_who_like.all.count}} user likes this</span></p>
+            {% endif %}
+            <a href="{% url 'add_favorite' book.id 'home' %}" class="add_favorite" id="book-{{book.id}}">Add to Favorites</a>
+        </div>
+    {% else %}
+        <p class="fst-italic mb-0"><span class="bg-warning">*this is one of your favorites</span></p>
+        {% if book.users_who_like.all.count > 1 %}
+            <p class="fst-italic mb-0"><span>Total {{book.users_who_like.all.count}} users like this</span></p>
+        {% endif %}
+        {% if book.users_who_like.all.count == 1 %}
+            <p class="fst-italic mb-0"><span>Total {{book.users_who_like.all.count}} user likes this</span></p>
+        {% endif %}
+        <a href="{% url 'remove_favorite' book.id 'home' %}" class="text-danger remove_favorite" id="book-{{book.id}}">Unfavorite</a>
+    {% endif %}    
+{% else %}
+    <div>
+        {% if book.users_who_like.all.count > 1 %}
+            <p class="fst-italic mb-0"><span>Total {{book.users_who_like.all.count}} users like this</span></p>
+        {% endif %}
+        {% if book.users_who_like.all.count == 1 %}
+            <p class="fst-italic mb-0"><span>Total {{book.users_who_like.all.count}} user likes this</span></p>
+        {% endif %}
+        <a href="{% url 'add_favorite' book.id 'home' %}" class="add_favorite" id="book-{{book.id}}">Add to Favorites</a>
+    </div>
+{% endif %}

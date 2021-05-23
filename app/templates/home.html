@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block title %}Favorite Books{% endblock %}
+
+{% block content %}
+{% include 'navbar.html' %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-6">
+            <h2 class="mb-5">Add Favorite Book</h2>
+            <form action="{% url 'home' %}" method="POST" class="mt-5" novalidate enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group col-md-10 mb-0 mx-auto">
+                    {{form.title|as_crispy_field}}
+                </div>
+                <div class="form-group col-md-10 mb-0 mx-auto">
+                    {{form.description|as_crispy_field}}
+                </div>
+                <div class="form-group col-md-10 mb-0 mx-auto d-flex">
+                    {{form.image|as_crispy_field}}
+                    <span>Preview</span>
+                    <img id="previewImg" src="{% static 'images/example-book.png' %}" alt="Placeholder" style="width: 100px; height: 100px;">
+                </div>
+                <div class="d-flex justify-content-center mt-5">
+                    <button class="btn btn-success px-5">Add</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-6">
+            <div class="d-flex">
+                <h2>All Books</h2>
+                {% if messages %}
+                    {% for message in messages %}
+                        <span class="alert alert-primary py-1 ms-3">{{message}}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="container">
+                <div class="pagination">
+                    <span class="step-links ms-auto">
+                        {% if page_obj.has_previous %}
+                            <a href="?page=1">&laquo; first</a>
+                            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                        {% endif %}
+                        <span class="current">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                        </span>
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}">next</a>
+                            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                        {% endif %}
+                    </span>
+                </div>
+                {% for book in object_list %}
+                <div class="mt-4 d-flex justify-content-around">
+                    <div>
+                        <a href="{% url 'detail' book.id %}"><h3>{{book.title}}</h3></a>
+                        <div class="ms-3" id="book-{{book.id}}">
+                            <span>(added by {{book.uploaded_by.first_name}} {{book.uploaded_by.last_name}})</span>
+                            {% if book.users_who_like.all %}
+                                {% if user not in book.users_who_like.all %}
+                                    <div>
+                                        {% if book.users_who_like.all.count > 1 %}
+                                            <p class="fst-italic mb-0"><span>Total {{book.users_who_like.all.count}} users like this</span></p>
+                                        {% endif %}
+                                        {% if book.users_who_like.all.count == 1 %}
+                                            <p class="fst-italic mb-0"><span>Total {{book.users_who_like.all.count}} user likes this</span></p>
+                                        {% endif %}
+                                        <a href="{% url 'add_favorite' book.id 'home' %}" class="add_favorite" id="book-{{book.id}}">Add to Favorites</a>
+                                    </div>
+                                {% else %}
+                                    <p class="fst-italic mb-0"><span class="bg-warning">*this is one of your favorites</span></p>
+                                    {% if book.users_who_like.all.count > 1 %}
+                                        <p class="fst-italic mb-0"><span>Total {{book.users_who_like.all.count}} users like this</span></p>
+                                    {% endif %}
+                                    {% if book.users_who_like.all.count == 1 %}
+                                        <p class="fst-italic mb-0"><span>Total {{book.users_who_like.all.count}} user likes this</span></p>
+                                    {% endif %}
+                                    <a href="{% url 'remove_favorite' book.id 'home' %}" class="text-danger remove_favorite" id="book-{{book.id}}">Unfavorite</a>
+                                {% endif %}    
+                            {% else %}
+                                <div>
+                                    {% if book.users_who_like.all.count > 1 %}
+                                        <p class="fst-italic mb-0"><span>Total {{book.users_who_like.all.count}} users like this</span></p>
+                                    {% endif %}
+                                    {% if book.users_who_like.all.count == 1 %}
+                                        <p class="fst-italic mb-0"><span>Total {{book.users_who_like.all.count}} user likes this</span></p>
+                                    {% endif %}
+                                    <a href="{% url 'add_favorite' book.id 'home' %}" class="add_favorite" id="book-{{book.id}}">Add to Favorites</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if book.image %}
+                    <div>
+                        <img src="{{book.image.url}}" alt="" style="width: 150px; height: 150px;">
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block javascript %}
+    <script src="{% static 'js/main.js' %}"></script>
+{% endblock %}

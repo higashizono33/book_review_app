@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block title %}Book Detail{% endblock %}
+
+{% block content %}
+{% include 'navbar.html' %}
+{% if object.uploaded_by != user %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-6">
+            <h2>{{object.title}}</h2>
+            <div class="ms-5">
+                <h4>Added by: {{object.uploaded_by.first_name}} {{object.uploaded_by.last_name}}</h4>
+                <h4>Added on: {{object.created_at|date:'F j, Y @ P'}}</h4>
+                <h4>Last updated on: {{object.updated_at|date:'F j, Y @ P'}}</h4>
+                <h4>Description: {{object.description}}</h4>
+            </div>
+        </div>
+        <div class="col-6">
+            <h2>Users Who Likes This Book:</h2>
+            <ul class="ms-3">
+                {% for who in object.users_who_like.all %}
+                    {% if who == user %}
+                        <div class="d-flex">
+                            <h4 class="me-2"><li>{{who.first_name}} {{who.last_name}}</li></h4>
+                            <a href="{% url 'remove_favorite' object.id 'detail' %}">Unfavorite</a>
+                        </div>
+                    {% else %}
+                        <h4><li>{{who.first_name}} {{who.last_name}}</li></h4>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            {% if object.users_who_like.all %}
+                {% if user not in object.users_who_like.all %}
+                    <a href="{% url 'add_favorite' object.id 'detail' %}">Add to Favorites</a>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'add_favorite' object.id 'detail' %}">Add to Favorites</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-6">
+            <form action="{% url 'detail' object.id %}" method="POST" novalidate enctype="multipart/form-data">
+                {% csrf_token %}
+                {{form.title|as_crispy_field}}
+                <div class="form-group ms-5 mb-0 mx-auto d-flex">
+                    {{form.image|as_crispy_field}}
+                    <span>Current image</span>
+                    <img id="previewImg" src="{{object.image.url}}" alt="Placeholder" style="width: 100px; height: 100px;">
+                </div>
+                <img src="" alt="">
+                <div class="ms-5 mt-2">
+                    <h4>Added by: {{object.uploaded_by.first_name}} {{object.uploaded_by.last_name}}</h4>
+                    <h4>Added on: {{object.created_at|date:'F j, Y @ P'}}</h4>
+                    <h4>Last updated on: {{object.updated_at|date:'F j, Y @ P'}}</h4>
+                    {{form.description|as_crispy_field}}
+                </div>
+                <div class="mt-5 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary me-3">Update</button>
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        Delete
+                    </button>
+                </div>
+            </form>
+            <!-- Modal Delete -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                    Are you sure to delete this book?
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <a href="{% url 'delete' object.id %}" class="btn btn-danger btn-delete">Delete</a>
+                    </div>
+                </div>
+                </div>
+            </div>
+            <!-- Modal end -->
+        </div>
+        <div class="col-6">
+            <h2>Users Who Likes This Book:</h2>
+            <ul class="ms-3">
+                {% for who in object.users_who_like.all %}
+                    {% if who == user %}
+                        <div class="d-flex">
+                            <h4 class="me-2"><li>{{who.first_name}} {{who.last_name}}</li></h4>
+                            <a href="{% url 'remove_favorite' object.id 'detail' %}">Unfavorite</a>
+                        </div>
+                    {% else %}
+                        <h4><li>{{who.first_name}} {{who.last_name}}</li></h4>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            {% if object.users_who_like.all %}
+                {% if user not in object.users_who_like.all %}
+                    <a href="{% url 'add_favorite' object.id 'detail' %}">Add to Favorites</a>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'add_favorite' object.id 'detail' %}">Add to Favorites</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block javascript %}
+<script src="{% static 'js/main.js' %}"></script>
+{% endblock %}
